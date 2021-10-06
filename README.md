@@ -7,7 +7,7 @@ Experiments of NTUME Introduction to Robotics (ME5118)
 * [Exp 3 - Identification and classification robot](Exp3/README.md)
 * [Exp 4 - Two-link writing robot](Exp4/README.md)
 
-## IDE
+## Setup
 * [Visual Studio Code](https://code.visualstudio.com/) with extension of [LEGO® MINDSTORMS® EV3 MicroPython](https://marketplace.visualstudio.com/items?itemName=lego-education.ev3-micropython) 
 * Environment steup : [Link](https://education.lego.com/en-us/product-resources/mindstorms-ev3/teacher-resources/python-for-ev3)
 * More info about EV3 MicroPython : [Link](https://pybricks.com/ev3-micropython/index.html)
