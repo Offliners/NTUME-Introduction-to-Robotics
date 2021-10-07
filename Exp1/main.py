@@ -21,7 +21,7 @@ class PD_controller:
 
     def control(self, error, previous_error):
         derivative = (error - previous_error) / self.dt
-        return self.k * error + self.D * derivative
+        return self.P * error + self.D * derivative
 
 class PI_controller:
     def __init__(self, P, I, timestep):
@@ -31,7 +31,7 @@ class PI_controller:
 
     def control(self, error, sum_error):
         integral = (sum_error + error) * self.dt
-        return self.k * error + self.I * integral
+        return self.P * error + self.I * integral
 
 class PID_controller:
     def __init__(self, P, I, D, timestep):
@@ -43,7 +43,7 @@ class PID_controller:
     def control(self, error, sum_error, previous_error):
         integral = (sum_error + error) * self.dt
         derivative = (error - previous_error) / self.dt
-        return self.k * error + self.I * integral + self.D * derivative
+        return self.P * error + self.I * integral + self.D * derivative
 
 # Initialize
 ev3 = EV3Brick()
