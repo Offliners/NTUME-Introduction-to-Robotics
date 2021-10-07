@@ -30,7 +30,7 @@ class PI_controller:
         self.dt = timestep
 
     def control(self, error, sum_error):
-        integral = (area + error) * self.dt
+        integral = (sum_error + error) * self.dt
         return self.k * error + self.I * integral
 
 class PID_controller:
@@ -41,7 +41,7 @@ class PID_controller:
         self.dt = timestep
 
     def control(self, error, sum_error, previous_error):
-        integral = (area + error) * self.dt
+        integral = (sum_error + error) * self.dt
         derivative = (error - previous_error) / self.dt
         return self.k * error + self.I * integral + self.D * derivative
 
@@ -51,6 +51,7 @@ cSensor_reflect = ColorSensor(Port.S2)
 Lmotor = Motor(Port.C)
 Rmotor = Motor(Port.B)
 mobile_car = DriveBase(Lmotor, Rmotor, wheel_diameter=55.5, axle_track=104)
+
 
 # Hyperparameter
 threshold = 15
@@ -62,6 +63,7 @@ motor_power = 100
 err = 0
 previous_err = 0
 sum_err = 0
+
 
 # Choose controller
 ctrl = P_controller(proportion)
@@ -83,6 +85,7 @@ while cSensor_reflect.color() != Color.RED:
     sum_err += err
     mobile_car.drive(motor_power, gain)
     wait(dt)
+
 
 # End alert
 ev3.speaker.beep(1000, 500)
