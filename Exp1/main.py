@@ -50,6 +50,7 @@ ev3 = EV3Brick()
 cSensor_reflect = ColorSensor(Port.S2)
 Lmotor = Motor(Port.C)
 Rmotor = Motor(Port.B)
+carrierMotor = Motor(Port.D)
 mobile_car = DriveBase(Lmotor, Rmotor, wheel_diameter=55, axle_track=120)
 
 
@@ -93,6 +94,8 @@ while True:
     mobile_car.drive(motor_speed, gain)
     wait(dt)
 
+mobile_car.turn(180)
+carrierMotor.run_target(100, 90)
 
 # End alert
 ev3.speaker.beep(1000, 500)
