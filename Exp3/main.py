@@ -18,12 +18,12 @@ def Check(color, err):
 def Forward(color):
     dis = 210 + Goals.index(color) * 200
     mobile_car.straight(dis)
-    Turn(-90)
+    Turn(-87)
     mobile_car.straight(100)
 
 def Back(color):
     mobile_car.straight(-100)
-    Turn(90)
+    Turn(87)
     dis = 210 + Goals.index(color) * 200
     mobile_car.straight(-dis)
 
@@ -42,7 +42,7 @@ def Turn(degree):
             mobile_car.stop()
             break
 
-        mobile_car.drive(0, 100 * sign)
+        mobile_car.drive(0, 50 * sign)
         wait(5)
 
 # Initialize
