@@ -14,10 +14,10 @@ class P_controller:
     def control(self, error):
         return self.P * error
 
-def Check(color, dis, blackExist, redExist, index):
+def Check(color, dis, blackExist, redExist, blueExist, index):
     Turn(-90)
     wait(100)
-    forward = 120 - index * 10
+    forward = 130 #- index * 10
 
     mobile_car.straight(forward)
 
@@ -31,7 +31,7 @@ def Check(color, dis, blackExist, redExist, index):
         gripperMotor.run_angle(-50, 30)
         redExist = 0
         flag = 2
-    elif cSensor.color() == Color.BLUE and blackExist == 0 and redExist == 0:
+    elif (cSensor.color() == Color.BLUE or cSensor.color() == Color.GREEN) and blackExist == 0 and redExist == 0:
         gripperMotor.run_angle(-50, 30)
         flag = 3
 
@@ -41,25 +41,50 @@ def Check(color, dis, blackExist, redExist, index):
     
     if flag == 1:
         print('Throw black')
-        mobile_car.straight(660 - dis)
+        GoStraight(660 - dis, 0)
         gripperMotor.run_angle(50, 30)
         Turn(0)
         wait(100)
         blackExist = 0
     elif flag == 2:
-        print('Correct red')
-        print(gSensor.angle())
-        mobile_car.straight(240 - dis)
-        Turn(90)
+        print('Correct Red')
+        GoStraight(240 - dis, 0)
+        Turn(-90)
         mobile_car.straight(forward)
         gripperMotor.run_angle(50, 30)
         wait(100)
         mobile_car.straight(-forward)
         Turn(0)
         redExist = 0
+    elif flag == 3:
+        print('Correct Blue')
+        GoStraight(660 - dis, 0)
+        Turn(-90)
+        mobile_car.straight(forward)
+        gripperMotor.run_angle(50, 30)
+        wait(100)
+        mobile_car.straight(-forward)
+        Turn(0)
+        blueExist = 0
 
-    return blackExist, redExist
+    return blackExist, redExist, blueExist
 
+def GoStraight(distance, degree):
+    mobile_car.reset()
+    if distance > 0:
+        while mobile_car.distance() < distance:
+            mobile_car.drive(100, 0)
+
+            if mobile_car.distance() != 0 and mobile_car.distance() % 100 == 0:
+                Turn(degree)
+                wait(5)
+    else:
+        while mobile_car.distance() > distance:
+            mobile_car.drive(-100, 0)
+
+            if mobile_car.distance() != 0 and (-1 * mobile_car.distance()) % 100 == 0:
+                Turn(degree)
+                wait(5)
 
 def Turn(degree):
     if degree >= 0:
@@ -79,20 +104,22 @@ def Turn(degree):
             break
 
         mobile_car.drive(0, 50 * sign)
-        wait(10)
+        wait(5)
 
 # Initialize
 ev3 = EV3Brick()
 err = 0
 Lmotor = Motor(Port.C)
 Rmotor = Motor(Port.B)
+Lmotor.reset_angle(0)
+Rmotor.reset_angle(0)
 gripperMotor = Motor(Port.D)
 gripperMotor.reset_angle(0)
 gSensor = GyroSensor(Port.S1)
 gSensor.reset_angle(0)
 cSensor = ColorSensor(Port.S2)
 Goals = [[Color.RED, 240], [Color.BLACK, 210], [Color.BLUE, 210]]
-mobile_car = DriveBase(Lmotor, Rmotor, wheel_diameter=55.5, axle_track=120)
+mobile_car = DriveBase(Lmotor, Rmotor, wheel_diameter=55.5, axle_track=110)
 mobile_car.reset()
 
 # Start alert
@@ -101,43 +128,47 @@ ev3.speaker.beep()
 dis = 0
 blackExist = 1
 redExist = 1
+blueExist = 1
 
 print('Round 1')
 for c in Goals:
-    mobile_car.straight(c[1])
     dis += c[1]
-    blackExist, redExist = Check(c[0], dis, blackExist, redExist, 0)
+    GoStraight(c[1], 0)
+    blackExist, redExist, blueExist = Check(c[0], dis, blackExist, redExist, blueExist, 0)
 
     if blackExist == 0:
         break
         
-mobile_car.straight(-660)
+GoStraight(-700, 0)
 Turn(0)
 
-dis = 20
-
+Lmotor.reset_angle(0)
+Rmotor.reset_angle(0)
+dis = -10
 print('Round 2')
-
 for c in Goals:
-    mobile_car.straight(c[1])
     dis += c[1]
-    blackExist, redExist = Check(c[0], dis, blackExist, redExist, 2)
+    GoStraight(c[1], 0)
+    blackExist, redExist, blueExist = Check(c[0], dis, blackExist, redExist, blueExist, 1)
 
     if redExist == 0:
         break
 
-mobile_car.straight(-240)
+GoStraight(-240, 0)
 Turn(0)
 
-dis = 20
-
+Lmotor.reset_angle(0)
+Rmotor.reset_angle(0)
+dis = 0
 print('Round 3')
-
 for c in Goals:
-    mobile_car.straight(c[1])
     dis += c[1]
-    blackExist, redExist = Check(c[0], dis, blackExist, redExist, 2)
+    GoStraight(c[1], 0)
+    blackExist, redExist, blueExist = Check(c[0], dis, blackExist, redExist, blueExist, 1)
 
-mobile_car.straight(-660)
+    if blueExist == 0:
+        break
+
+GoStraight(-700, 0)
 
 ev3.speaker.beep()
