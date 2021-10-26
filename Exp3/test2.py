@@ -7,91 +7,77 @@ from pybricks.tools import wait, StopWatch, DataLog
 from pybricks.robotics import DriveBase
 from pybricks.media.ev3dev import SoundFile, ImageFile
 
-class P_controller:
-    def __init__(self, P):
+class PID_controller:
+    def __init__(self, P, I, D, timestep):
         self.P = P
+        self.I = I
+        self.D = D
+        self.dt = timestep
 
-    def control(self, error):
-        return self.P * error
+    def control(self, error, sum_error, previous_error):
+        integral = (sum_error + error) * self.dt
+        derivative = (error - previous_error) / self.dt
+        return self.P * error + self.I * integral + self.D * derivative
 
-def Check(index, color, dis, ballExist):
+def colorCorrect(color):
+    if color == Color.BLACK or color == None:
+        return Color.BLACK
+    elif color == Color.BLUE or color == Color.GREEN:
+        return Color.BLUE
+    else:
+        return Color.RED
+
+def Check(ballInfo, index):
     Turn(-90)
     wait(100)
-    forward = 120
-    gripperAngle = 30
-    gripperPower = 50
-    mobile_car.straight(forward)
+    forward = 110
 
-    flag = 0
-    print(cSensor.color())
+    GoStraight(forward, -90)
+    wait(100)
+    Turn(-90)
+    wait(200)
+
+    c = colorCorrect(cSensor.color())
+    ballInfo[index][2] = c
+    ballInfo[index][3] = index
+    if ballInfo[index][0] == c:
+        ballInfo[index][4] = True
     
-    if cSensor.color() == Color.BLACK or cSensor.color() == None:
-        ballExist[0][2] = index
-        if ballExist[0][1]:
-            gripperMotor.run_angle(-gripperPower, gripperAngle)
-            flag = 1
-    elif cSensor.color() == Color.RED: 
-        ballExist[1][2] = index
-        if (not ballExist[0][1]) and ballExist[1][1] and (ballExist[1][2] < ballExist[2][2]):
-            gripperMotor.run_angle(-gripperPower, gripperAngle)
-            flag = 2
-    elif (cSensor.color() == Color.BLUE or cSensor.color() == Color.GREEN):
-        ballExist[2][2] = index
-        if (not ballExist[1][1]) and (ballExist[2][2] < ballExist[1][2]):
-            gripperMotor.run_angle(-gripperPower, gripperAngle)
-            flag = 3
-
-    mobile_car.straight(-forward)
+    GoStraight(-forward, -90)
+    wait(100)
     Turn(0)
     wait(100)
     
-    if flag == 1:
-        print('Throw black')
-        GoStraight(650 - dis, 0)
-        gripperMotor.run_angle(gripperPower, gripperAngle)
-        Turn(0)
-        wait(100)
-        ballExist[0][1] = False
-        dis = 700
-    elif flag == 2:
-        print('Correct Red')
-        GoStraight(250 - dis, 0)    
-        Turn(-90)
-        mobile_car.straight(forward)
-        gripperMotor.run_angle(gripperPower, gripperAngle)
-        wait(100)
-        mobile_car.straight(-forward)
-        Turn(0)
-        ballExist[1][1] = False
-    elif flag == 3:
-        print('Correct Blue')
-        GoStraight(650 - dis, 0)
-        Turn(-90)
-        mobile_car.straight(forward)
-        gripperMotor.run_angle(gripperPower, gripperAngle)
-        wait(100)
-        mobile_car.straight(-forward)
-        Turn(0)
-        ballExist[2][1] = False
-
-    return ballExist, dis
+    return ballInfo
 
 def GoStraight(distance, degree):
     mobile_car.reset()
+    
+    gain = 1.1
+    err = 0
+    sum_err = 0
+    previous_err = 0
+    dt = 5
+    ctrl = PID_controller(2, 0.01, 10, dt)
     if distance > 0:
         while mobile_car.distance() < distance:
-            mobile_car.drive(130, 0)
-
-            if mobile_car.distance() != 0 and mobile_car.distance() % 100 == 0:
-                Turn(degree)
+            print(gSensor.angle(), -1 * degree)
+            err = -1 * degree - gSensor.angle()
+            gain = ctrl.control(err, sum_err, previous_err)
+            previous_err = err
+            sum_err += err
+            mobile_car.drive(100, -gain)
+            wait(dt)
     else:
         while mobile_car.distance() > distance:
-            mobile_car.drive(-130, 0)
+            print(gSensor.angle(), -1 * degree)
+            err = -1 * degree - gSensor.angle()
+            gain = ctrl.control(err, sum_err, previous_err)
+            previous_err = err
+            sum_err += err
+            mobile_car.drive(-100, -gain)
+            wait(dt)
 
-            if mobile_car.distance() != 0 and (-1 * mobile_car.distance()) % 100 == 0:
-                Turn(degree)
-
-    print(mobile_car.distance())
 
 def Turn(degree):
     if degree >= 0:
@@ -101,17 +87,26 @@ def Turn(degree):
 
     while True:
         if sign * gSensor.angle() <=  degree:
-            ctrl = P_controller(0.1)
-            gain = 10
-            while sign * gSensor.angle() !=  degree:
-                gain += ctrl.control(gSensor.angle() - sign * degree)
+            gain = 1.1
+            err = 0
+            sum_err = 0
+            previous_err = 0
+            dt = 10
+            ctrl = PID_controller(2, 0.01, 25, dt)
+            while True:
+                if sign * gSensor.angle() == degree:
+                    mobile_car.stop()
+                    break
+                err = gSensor.angle() - sign * degree
+                gain += ctrl.control(err, sum_err, previous_err)
+                previous_err = err
+                sum_err += err
                 mobile_car.drive(0, gain)
-                wait(5)
-            mobile_car.stop()
+                wait(dt)
+            
             break
 
-        mobile_car.drive(0, 50 * sign)
-        wait(5)
+        mobile_car.drive(0, 30 * sign)
 
 # Initialize
 ev3 = EV3Brick()
@@ -122,42 +117,53 @@ gripperMotor.reset_angle(0)
 gSensor = GyroSensor(Port.S1)
 gSensor.reset_angle(0)
 cSensor = ColorSensor(Port.S2)
- 
-# [Color, distance]
-Goals = [[Color.RED, 230], [Color.BLACK, 200], [Color.BLUE, 200]]
 
-# [Color, isExist, found order]
-ballExist = [[Color.BLACK, True, 3], [Color.RED, True, 3], [Color.BLUE, True, 3]]
-mobile_car = DriveBase(Lmotor, Rmotor, wheel_diameter=55.5, axle_track=120)
+# [correct ball color, distance, current ball color, found order, is the color correct]
+ballInfo = [[Color.RED, 230, None, 3, False], [Color.BLACK, 210, None, 3, False], [Color.BLUE, 210, None, 3, False]]
+mobile_car = DriveBase(Lmotor, Rmotor, wheel_diameter=55.5, axle_track=110)
 mobile_car.reset()
 
 # Start alert
 ev3.speaker.beep()
 
-
 for i in range(3):
-    print('Round ' + str(i + 1))
-
-    dis = 0
     Lmotor.reset_angle(0)
     Rmotor.reset_angle(0)
-    count = 0
-    for c in Goals:
-        if i != 0 and c[0] == Color.RED:
-            pass
-        else:
-            dis += c[1]
-            GoStraight(c[1], 0)
-        
-        ballExist, dis = Check(count, c[0], dis, ballExist)
-        count += 1
+    GoStraight(ballInfo[i][1], 0)
+    ballInfo = Check(ballInfo, i)
+    print(ballInfo)
 
-        if not ballExist[i][1]:
-            break
-        
-    GoStraight(-dis + 220, 0)
-    Turn(0)
+dis = 0
+for c in reversed(ballInfo):
+    if c[2] != Color.BLACK:
+        dis += c[1]
+    else:
+        GoStraight(-dis, 0)
+        Turn(-90)
+        wait(100)
+        forward = 100
+        GoStraight(forward, -90)
+        Turn(-90)
+        wait(100)
+        gripperMotor.run_angle(-50, 30)
+        GoStraight(-forward, -90)
+        Turn(0)
+        wait(100)
+        GoStraight(dis, 0)
+        gripperMotor.run_angle(50, 30)
+        break
 
-GoStraight(-220, 0)
+Turn(0)
+GoStraight(-660, 0)
+
+if ballInfo[1][4]:
+    if ballInfo[0][4] and ballInfo[2][4]:
+        print('Done')
+    else:
+        pass
+        # Todo
+else:
+    pass
+    # Todo
 
 ev3.speaker.beep()
