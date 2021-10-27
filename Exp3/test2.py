@@ -29,11 +29,9 @@ def colorCorrect(color):
 
 def Check(ballInfo, index):
     Turn(-90)
-    wait(100)
     forward = 110
 
     GoStraight(forward, -90)
-    wait(100)
     Turn(-90)
     wait(200)
 
@@ -44,24 +42,21 @@ def Check(ballInfo, index):
         ballInfo[index][4] = True
     
     GoStraight(-forward, -90)
-    wait(100)
     Turn(0)
-    wait(100)
     
     return ballInfo
 
 def GoStraight(distance, degree):
     mobile_car.reset()
     
-    gain = 1.1
+    gain = 1.5
     err = 0
     sum_err = 0
     previous_err = 0
     dt = 5
-    ctrl = PID_controller(2, 0.01, 10, dt)
+    ctrl = PID_controller(2, 0.01, 5, dt)
     if distance > 0:
         while mobile_car.distance() < distance:
-            print(gSensor.angle(), -1 * degree)
             err = -1 * degree - gSensor.angle()
             gain = ctrl.control(err, sum_err, previous_err)
             previous_err = err
@@ -70,13 +65,15 @@ def GoStraight(distance, degree):
             wait(dt)
     else:
         while mobile_car.distance() > distance:
-            print(gSensor.angle(), -1 * degree)
             err = -1 * degree - gSensor.angle()
             gain = ctrl.control(err, sum_err, previous_err)
             previous_err = err
             sum_err += err
             mobile_car.drive(-100, -gain)
             wait(dt)
+    
+    mobile_car.stop()
+
 
 
 def Turn(degree):
@@ -87,12 +84,12 @@ def Turn(degree):
 
     while True:
         if sign * gSensor.angle() <=  degree:
-            gain = 1.1
+            gain = 1.5
             err = 0
             sum_err = 0
             previous_err = 0
-            dt = 10
-            ctrl = PID_controller(2, 0.01, 25, dt)
+            dt = 5
+            ctrl = PID_controller(2, 0.01, 5, dt)
             while True:
                 if sign * gSensor.angle() == degree:
                     mobile_car.stop()
@@ -107,6 +104,20 @@ def Turn(degree):
             break
 
         mobile_car.drive(0, 30 * sign)
+        wait(10)
+
+def GriporThrowBall(select):
+    Turn(-90)
+    forward = 110
+    GoStraight(forward, -90)
+    Turn(-90)
+    if select == True:
+        gripperMotor.run_angle(-50, 30)
+    else:
+        gripperMotor.run_angle(50, 30)
+
+    GoStraight(-forward, -90)
+    Turn(0)
 
 # Initialize
 ev3 = EV3Brick()
@@ -119,8 +130,8 @@ gSensor.reset_angle(0)
 cSensor = ColorSensor(Port.S2)
 
 # [correct ball color, distance, current ball color, found order, is the color correct]
-ballInfo = [[Color.RED, 230, None, 3, False], [Color.BLACK, 210, None, 3, False], [Color.BLUE, 210, None, 3, False]]
-mobile_car = DriveBase(Lmotor, Rmotor, wheel_diameter=55.5, axle_track=110)
+ballInfo = [[Color.RED, 225, None, 3, False], [Color.BLACK, 205, None, 3, False], [Color.BLUE, 205, None, 3, False]]
+mobile_car = DriveBase(Lmotor, Rmotor, wheel_diameter=55.5, axle_track=104)
 mobile_car.reset()
 
 # Start alert
@@ -133,37 +144,90 @@ for i in range(3):
     ballInfo = Check(ballInfo, i)
     print(ballInfo)
 
+Lmotor.reset_angle(0)
+Rmotor.reset_angle(0)
 dis = 0
+blackLoc = None
 for c in reversed(ballInfo):
     if c[2] != Color.BLACK:
         dis += c[1]
     else:
+        blackLoc = c[0]
         GoStraight(-dis, 0)
-        Turn(-90)
-        wait(100)
-        forward = 100
-        GoStraight(forward, -90)
-        Turn(-90)
-        wait(100)
-        gripperMotor.run_angle(-50, 30)
-        GoStraight(-forward, -90)
-        Turn(0)
-        wait(100)
-        GoStraight(dis, 0)
+        GriporThrowBall(True)
+        GoStraight(dis + 10, 0)
         gripperMotor.run_angle(50, 30)
         break
 
 Turn(0)
-GoStraight(-660, 0)
+GoStraight(-15, 0)
+wait(10)
 
+Lmotor.reset_angle(0)
+Rmotor.reset_angle(0)
 if ballInfo[1][4]:
     if ballInfo[0][4] and ballInfo[2][4]:
         print('Done')
     else:
-        pass
-        # Todo
+        GriporThrowBall(True)
+        GoStraight(-ballInfo[1][1], 0)
+        GriporThrowBall(False)
+        GoStraight(-ballInfo[0][1], 0)
+        GriporThrowBall(True)
+        GoStraight(ballInfo[0][1] + ballInfo[1][1], 0)
+        GriporThrowBall(False)
+        GoStraight(-ballInfo[1][1], 0)
+        GriporThrowBall(True)
+        GoStraight(-ballInfo[0][1] + 10, 0)
+        GriporThrowBall(False)
 else:
-    pass
-    # Todo
+    if blackLoc == Color.RED:
+        dis = 0
+        for c in reversed(ballInfo):
+            if c[2] != blackLoc:
+                dis += c[1]
+            else:
+                GoStraight(-dis, 0)
+                GriporThrowBall(True)
+                break
+        
+        dis = 0
+        for c in reversed(ballInfo):
+            if c[0] != blackLoc:
+                dis += c[1]
+            else:
+                GoStraight(-dis, 0)
+                GriporThrowBall(False)
+                break
+        
+        if not ballInfo[2][4]:
+            GoStraight(ballInfo[1][1], 0)
+            GriporThrowBall(True)
+            GoStraight(ballInfo[2][1], 0)
+            GriporThrowBall(False)
+    else:
+        dis = 0
+        for c in reversed(ballInfo):
+            if c[2] != blackLoc:
+                dis += c[1]
+            else:
+                GoStraight(-dis, 0)
+                GriporThrowBall(True)
+                break
+        
+        dis = 0
+        for c in reversed(ballInfo):
+            if c[0] != blackLoc:
+                dis += c[1]
+            else:
+                GoStraight(dis, 0)
+                GriporThrowBall(False)
+                break
+
+        if not ballInfo[0][4]:
+            GoStraight(-ballInfo[2][1], 0)
+            GriporThrowBall(True)
+            GoStraight(-ballInfo[1][1], 0)
+            GriporThrowBall(False)
 
 ev3.speaker.beep()
