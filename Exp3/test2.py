@@ -29,11 +29,10 @@ def colorCorrect(color):
 
 def Check(ballInfo, index):
     Turn(-90)
-    forward = 110
+    forward = 75
 
     GoStraight(forward, -90)
     Turn(-90)
-    wait(200)
 
     c = colorCorrect(cSensor.color())
     ballInfo[index][2] = c
@@ -108,13 +107,13 @@ def Turn(degree):
 
 def GriporThrowBall(select):
     Turn(-90)
-    forward = 110
+    forward = 65
     GoStraight(forward, -90)
     Turn(-90)
     if select == True:
-        gripperMotor.run_angle(-50, 30)
+        gripperMotor.run_angle(50, 70)
     else:
-        gripperMotor.run_angle(50, 30)
+        gripperMotor.run_angle(-50, 70)
 
     GoStraight(-forward, -90)
     Turn(0)
@@ -130,7 +129,7 @@ gSensor.reset_angle(0)
 cSensor = ColorSensor(Port.S2)
 
 # [correct ball color, distance, current ball color, found order, is the color correct]
-ballInfo = [[Color.RED, 225, None, 3, False], [Color.BLACK, 205, None, 3, False], [Color.BLUE, 205, None, 3, False]]
+ballInfo = [[Color.RED, 225, None, 3, False], [Color.BLACK, 210, None, 3, False], [Color.BLUE, 210, None, 3, False]]
 mobile_car = DriveBase(Lmotor, Rmotor, wheel_diameter=55.5, axle_track=104)
 mobile_car.reset()
 
@@ -153,10 +152,11 @@ for c in reversed(ballInfo):
         dis += c[1]
     else:
         blackLoc = c[0]
-        GoStraight(-dis, 0)
+        if dis != 0:
+            GoStraight(-dis, 0)
         GriporThrowBall(True)
         GoStraight(dis + 10, 0)
-        gripperMotor.run_angle(50, 30)
+        gripperMotor.run_angle(-50, 70)
         break
 
 Turn(0)
@@ -166,21 +166,21 @@ wait(10)
 Lmotor.reset_angle(0)
 Rmotor.reset_angle(0)
 if ballInfo[1][4]:
-    if ballInfo[0][4] and ballInfo[2][4]:
+    if ballInfo[0][4] and ballInfo[2][4]: # Red - Black - Blue
         print('Done')
-    else:
+    else: # Blue - Black - Red
         GriporThrowBall(True)
         GoStraight(-ballInfo[1][1], 0)
         GriporThrowBall(False)
-        GoStraight(-ballInfo[0][1], 0)
+        GoStraight(-ballInfo[0][1] + 30, 0)
         GriporThrowBall(True)
         GoStraight(ballInfo[0][1] + ballInfo[1][1], 0)
         GriporThrowBall(False)
         GoStraight(-ballInfo[1][1], 0)
         GriporThrowBall(True)
-        GoStraight(-ballInfo[0][1] + 10, 0)
+        GoStraight(-ballInfo[0][1] + 30, 0)
         GriporThrowBall(False)
-else:
+else: 
     if blackLoc == Color.RED:
         dis = 0
         for c in reversed(ballInfo):
@@ -190,23 +190,19 @@ else:
                 GoStraight(-dis, 0)
                 GriporThrowBall(True)
                 break
-        
-        dis = 0
-        for c in reversed(ballInfo):
-            if c[0] != blackLoc:
-                dis += c[1]
-            else:
-                GoStraight(-dis, 0)
-                GriporThrowBall(False)
-                break
-        
-        if not ballInfo[2][4]:
+
+        if ballInfo[2][4]: # Black - Red - Blue
+            GoStraight(-ballInfo[1][1], 0)
+            GriporThrowBall(False)
+        else: # Black - Blue - Red
+            GoStraight(-ballInfo[1][1] - ballInfo[2][1], 0)
+            GriporThrowBall(False)
             GoStraight(ballInfo[1][1], 0)
             GriporThrowBall(True)
             GoStraight(ballInfo[2][1], 0)
             GriporThrowBall(False)
     else:
-        dis = 0
+        dis = -10
         for c in reversed(ballInfo):
             if c[2] != blackLoc:
                 dis += c[1]
@@ -215,17 +211,13 @@ else:
                 GriporThrowBall(True)
                 break
         
-        dis = 0
-        for c in reversed(ballInfo):
-            if c[0] != blackLoc:
-                dis += c[1]
-            else:
-                GoStraight(dis, 0)
-                GriporThrowBall(False)
-                break
-
-        if not ballInfo[0][4]:
-            GoStraight(-ballInfo[2][1], 0)
+        if ballInfo[0][4]: # Red - Blue - Black
+            GoStraight(ballInfo[2][1], 0)
+            GriporThrowBall(False)
+        else: # Blue - Red - Black
+            GoStraight(ballInfo[2][1] + ballInfo[1][1], 0)
+            GriporThrowBall(False)
+            GoStraight(-ballInfo[2][1] + 10, 0)
             GriporThrowBall(True)
             GoStraight(-ballInfo[1][1], 0)
             GriporThrowBall(False)
