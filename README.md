@@ -2,10 +2,10 @@
 Experiments of NTUME Introduction to Robotics (ME5118)
 
 ## Outline
-* [Exp 1 - Line following and pencil throwing car](Exp1/README.md)
-* [Exp 2 - ](Exp2/README.md)
-* [Exp 3 - Identification and classification robot](Exp3/README.md)
-* [Exp 4 - Two-link writing robot](Exp4/README.md)
+* [Exp 1 - 循跡投筆車](Exp1/README.md)
+* [Exp 2 - SCARA(4Dof)與上銀六軸(6Dof)使用](Exp2/README.md)
+* [Exp 3 - 辨識分類機器人(Exp3/README.md)
+* [Exp 4 - 二連桿寫字機器人](Exp4/README.md)
 * [Final Project](Final/README.md)
 
 ## Setup
