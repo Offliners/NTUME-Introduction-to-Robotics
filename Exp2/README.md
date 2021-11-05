@@ -13,5 +13,3 @@ DH Table Tester and Visualization : [Link](DHTable_tester.ipynb)
 
 ### 上銀六軸 (6Dof)
 ![HIWIN 6Dof](img/HIWIN_6Dof.JPG)
-
-## DEMO
