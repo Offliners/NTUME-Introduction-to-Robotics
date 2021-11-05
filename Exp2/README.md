@@ -3,13 +3,15 @@
 
 2. 操作上銀六軸來寫NTU
 
-Exp2 report : [Link](Exp2_report.pdf)
+Exp2 Report : [Link](Exp2_report.pdf)
+
+DH Table Tester and Visualization : [Link](DHTable_tester.ipynb)
 
 ## 機構
 ### SCARA (4Dof)
-![SCARA]()
+![SCARA](img/SCARA.JPG)
 
 ### 上銀六軸 (6Dof)
-![HIWIN 6Dof]()
+![HIWIN 6Dof](img/HIWIN_6Dof.JPG)
 
 ## DEMO
