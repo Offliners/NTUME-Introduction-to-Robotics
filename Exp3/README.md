@@ -3,5 +3,9 @@
 
 ![exp3_fied](img/exp3_field.JPG)
 
+Exp3 Report : [Link](Exp3_report.pdf)
+
 ## 程式流程圖
 ![Flow Chart](img/flowChart.png)
+
+## DEMO
