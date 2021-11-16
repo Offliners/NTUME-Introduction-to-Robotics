@@ -7,7 +7,7 @@ from pybricks.tools import wait, StopWatch, DataLog
 from pybricks.robotics import DriveBase
 from pybricks.media.ev3dev import SoundFile, ImageFile
 
-PI = 3.141592654
+PI = 3.141592653589793238462643383279
 X_diameter = 43.2 # mm
 y_diameter = 56 # mm
 
@@ -40,14 +40,14 @@ def drawSun(size=2):
     verticalMove(3*size)
 
     liftPen(True)
-    verticalMove(-size)
+    verticalMove(-1.5*size)
 
     liftPen(False)
     horizonMove(2*size)
 
     liftPen(True)
     horizonMove(-2*size)
-    verticalMove(size)
+    verticalMove(1.5*size)
 
     liftPen(False)
     horizonMove(2*size)
@@ -79,10 +79,13 @@ def drawSpring():
     verticalMove(-1.5)
 
     liftPen(False)
-    for i in range(20):
-        verticalMove(0.2)
-        horizonMove(-0.2)
-        wait(10)
+    
+    horizontal_motor.run_angle(-75, 360 * (-3) / (PI * X_diameter / 10), Stop.COAST, False)
+    vertical_motor.run_angle(100, 360 * 4 / (PI * y_diameter / 10), Stop.COAST, False)
+    wait(1400)
+    
+    vertical_motor.stop()
+    horizontal_motor.stop()
     
     liftPen(True)
     horizonMove(1)
@@ -93,15 +96,14 @@ def drawSpring():
     
     horizonMove(2)
     liftPen(False)
-    for i in range(15):
-        verticalMove(0.2)
-        horizonMove(0.2)
-        wait(10)
+    horizontal_motor.run_angle(-75, 360 * 2 / (PI * X_diameter / 10), Stop.COAST, False)
+    vertical_motor.run_angle(100, 360 * 3 / (PI * y_diameter / 10), Stop.COAST, False)
+    wait(600)
     
     liftPen(True)
-    horizonMove(-2)
+    horizonMove(-3)
 
-    drawSun(1)
+    drawSun(1.2)
 
 
 
