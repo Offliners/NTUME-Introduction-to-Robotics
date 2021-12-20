@@ -48,7 +48,7 @@ class TwoLinkManipulator:
 
     def move(self, theta1, theta2):
         t12 = abs(theta1) + abs(theta2)
-        maxspeed = 50
+        maxspeed = 25
         if theta1 != 0 or theta2 != 0:
             p1 = maxspeed * abs(theta1) / t12
             p2 = maxspeed * abs(theta2) / t12
@@ -76,9 +76,9 @@ sun_dy = np.array([-1, 5.65685, -5.65685, 4.24264, 5.65685, -7.07107, 4.24264, -
 sun_z = np.array([0, 1, 0, 1, 1, 0, 1, 0, 1])
 
 # Spring
-spring_dx = np.array([-4, 0, 1, 0, 1, 0, -3, 4, -1, 1, 0, 4, -4, 0, 4, -2, 0, 2, 0])
-spring_dy = np.array([-1, 3, -3.5, 3, -4, 5, -2.5, -1.5, 4, 1, -4, 0, 0, 2, 0, -2, 2, -2, 2])
-spring_z = np.array([0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1])
+spring_dx = np.array([-4, 1.4142, -1.4142, 2.1213, -2.1213, 2.8284, -2.8284, 0, 4, -3.5, 0, 2.1213, 2.1213, -2.1213, -1.0607, 2.1213, 0, -1.0607, 2.1213, -1.0607])
+spring_dy = np.array([-1, 0, 1.4142, -1.4142, 2.1213, -2.1213, 2.8284, -2.8284, 1, 1, 2, -2.1213, 2.1213, -2.1213, 1.0607, 2.1213, -2.1213, 1.0607, 0, 1.0607])
+spring_z = np.array([0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1])
 
 start_point = np.array([10, 5.4])
 def TrajectoryPlanner(dx, dy, z, start):
@@ -110,7 +110,6 @@ def Menu():
         print('4. Write SUN')
         print('5. Write Spring')
         print('6. Motor Info')
-        print('7. Stop all motors')
         print('0. Exit')
         print('==================================')
         
@@ -130,23 +129,23 @@ def Menu():
                 if t1 == 0 and t2 == 0 and t3 == 0:
                     break
                 else:
-                    m3.on_for_degrees(30, t3)
+                    m3.on_for_degrees(20, t3)
                     arm.move(decelerate_ratio * t1, decelerate_ratio * t2)
                     endpoint = start_point + np.array([-3, 6])
         elif select == 4:
             t_x, t_y, t_z = TrajectoryPlanner(sun_dx, sun_dy, sun_z, start_point)
             for i in range(1, len(t_x)):
-                m3.on_for_degrees(30, 90 * (t_z[i] - t_z[i - 1]))
+                m3.on_for_degrees(20, 90 * (t_z[i] - t_z[i - 1]))
                 arm.move((t_x[i] - t_x[i - 1]), (t_y[i] - t_y[i - 1]))
-            m3.on_for_degrees(30, -90)
+            m3.on_for_degrees(20, -90)
             
             history_angle = np.array([t_x[-1] - t_x[0], t_y[-1] - t_y[0]])
         elif select == 5:
             t_x, t_y, t_z = TrajectoryPlanner(spring_dx, spring_dy, spring_z, start_point)
             for i in range(1, len(t_x)):
-                m3.on_for_degrees(30, 90 * (t_z[i] - t_z[i - 1]))
+                m3.on_for_degrees(20, 90 * (t_z[i] - t_z[i - 1]))
                 arm.move((t_x[i] - t_x[i - 1]), (t_y[i] - t_y[i - 1]))
-            m3.on_for_degrees(30, -90)
+            m3.on_for_degrees(20, -90)
             
             history_angle = np.array([t_x[-1] - t_x[0], t_y[-1] - t_y[0]])
         elif select == 6:
@@ -156,11 +155,7 @@ def Menu():
             m2.motorInfo()
             print('Motor 3 info : ')
             print(m3.state)
-            input('Press any key to exit...')
-        elif select == 7:
-            m1.stop()
-            m2.stop()
-            m3.stop()
+            input('Press enter to exit...')
     return 0
 
 # Start Alert
