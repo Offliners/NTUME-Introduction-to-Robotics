@@ -17,7 +17,7 @@ class MotorControl(Thread):
         self.m.polarity = rot_dir
 
     def run(self, speed, theta):
-        self.m.on_for_degrees(speed, theta, brake=False)
+        self.m.on_for_degrees(speed, theta) # brake=False
     
     def motorInfo(self):
         print(self.m.state)
@@ -48,7 +48,7 @@ class TwoLinkManipulator:
 
     def move(self, theta1, theta2):
         t12 = abs(theta1) + abs(theta2)
-        maxspeed = 25
+        maxspeed = 30
         if theta1 != 0 or theta2 != 0:
             p1 = maxspeed * abs(theta1) / t12
             p2 = maxspeed * abs(theta2) / t12
@@ -64,30 +64,31 @@ sound = Sound()
 m1 = MotorControl(OUTPUT_B, 'normal')
 m2 = MotorControl(OUTPUT_C, 'normal')
 m3 = MediumMotor(OUTPUT_D)
-decelerate_ratio = 24
+decelerate_ratio = 24.5
 arm = TwoLinkManipulator(10, 8.5, decelerate_ratio)
 
 # SUN
-# sun_dx = np.array([-4, 5.657, 0.7071, -0.7071 + -5.657, 0.7071, -4.243, 5.657, -0.471, 0.471 + 1.4142, 0.7071, -0.7071, -4.243, -2.357, 2.357 + 7.071, -2.8284, 2.8284, -4.243])
-# sun_dy = np.array([-1, 5.657, 0.7071, -0.7071 + -5.657, -0.7071, 4.243, 5.657, 2.357, -2.357 + -7.071, -0.7071, 0.7071, 4.243, 0.471, -0.471 + -1.414, 2.8284, -2.8284, 4.243])
-# sun_z = np.array([0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1])
-sun_dx = np.array([-4, 5.65685, -5.65685, -4.24264, 5.65685, 1.41421, -4.24264, 7.07107, -4.24264])
-sun_dy = np.array([-1, 5.65685, -5.65685, 4.24264, 5.65685, -7.07107, 4.24264, -1.41421, 4.24264])
+# sun_dx = np.array([-4, 5.65685, -5.65685, -4.24264, 5.65685, 1.41421, -4.24264, 7.07107, -4.24264])
+# sun_dy = np.array([-1, 5.65685, -5.65685, 4.24264, 5.65685, -7.07107, 4.24264, -1.41421, 4.24264])
+# sun_z = np.array([0, 1, 0, 1, 1, 0, 1, 0, 1])
+
+sun_dx = np.array([-4, 5.65685, -5.65685, -4.24264, 5.65685, 2.5, -6, 9.5, -7])
+sun_dy = np.array([-1, 5.65685, -5.65685, 4.24264, 5.9, -8, 6, -4.5, 7])
 sun_z = np.array([0, 1, 0, 1, 1, 0, 1, 0, 1])
 
 # Spring
-spring_dx = np.array([-4, 1.4142, -1.4142, 2.1213, -2.1213, 2.8284, -2.8284, 0, 4, -3.5, 0, 2.1213, 2.1213, -2.1213, -1.0607, 2.1213, 0, -1.0607, 2.1213, -1.0607])
-spring_dy = np.array([-1, 0, 1.4142, -1.4142, 2.1213, -2.1213, 2.8284, -2.8284, 1, 1, 2, -2.1213, 2.1213, -2.1213, 1.0607, 2.1213, -2.1213, 1.0607, 0, 1.0607])
-spring_z = np.array([0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1])
+spring_dx = np.array([-4, -3.5355, 4.5, -3, 4.5, -4.8, 1, 1.5, 1.5, 2, -5, 0, 3.5, 2.7, -2.7, -2.5, 3.2, 0.7071, -2.8, 4.5, -3.5])
+spring_dy = np.array([-1, 3.5355, -2.8, 3, -3.5, 5, -3.5, 0, -0.5, -1, 4.5, 3, -5.2, 2.7, -2.7, 2.1213, 2.8284, -4, 2.8, -2.5, 3.5])
+spring_z = np.array([0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1])
 
-start_point = np.array([10, 5.4])
+start_point = np.array([9.3, 5.2])
 def TrajectoryPlanner(dx, dy, z, start):
     t_x = []
     t_y = []
     t_z = []
     t1 = start[0]
     t2 = start[1]
-    interval = 15
+    interval = 20
     for i in range(dx.shape[0]):
         for j in range(interval):
             t1 += dx[i] * 1 / interval
@@ -129,25 +130,27 @@ def Menu():
                 if t1 == 0 and t2 == 0 and t3 == 0:
                     break
                 else:
-                    m3.on_for_degrees(20, t3)
+                    m3.on_for_degrees(30, t3)
                     arm.move(decelerate_ratio * t1, decelerate_ratio * t2)
                     endpoint = start_point + np.array([-3, 6])
         elif select == 4:
             t_x, t_y, t_z = TrajectoryPlanner(sun_dx, sun_dy, sun_z, start_point)
             for i in range(1, len(t_x)):
-                m3.on_for_degrees(20, 90 * (t_z[i] - t_z[i - 1]))
+                m3.on_for_degrees(30, 90 * (t_z[i] - t_z[i - 1]))
                 arm.move((t_x[i] - t_x[i - 1]), (t_y[i] - t_y[i - 1]))
-            m3.on_for_degrees(20, -90)
+            m3.on_for_degrees(30, -90)
             
             history_angle = np.array([t_x[-1] - t_x[0], t_y[-1] - t_y[0]])
+            arm.move(-history_angle[0], -history_angle[1])
         elif select == 5:
             t_x, t_y, t_z = TrajectoryPlanner(spring_dx, spring_dy, spring_z, start_point)
             for i in range(1, len(t_x)):
-                m3.on_for_degrees(20, 90 * (t_z[i] - t_z[i - 1]))
+                m3.on_for_degrees(30, 90 * (t_z[i] - t_z[i - 1]))
                 arm.move((t_x[i] - t_x[i - 1]), (t_y[i] - t_y[i - 1]))
-            m3.on_for_degrees(20, -90)
+            m3.on_for_degrees(30, -90)
             
             history_angle = np.array([t_x[-1] - t_x[0], t_y[-1] - t_y[0]])
+            arm.move(-history_angle[0], -history_angle[1])
         elif select == 6:
             print('Motor 1 info : ')
             m1.motorInfo()
