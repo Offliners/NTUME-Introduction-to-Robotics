@@ -6,7 +6,6 @@ Experiments of NTUME Introduction to Robotics (ME5118)
 * [Exp 2 - SCARA(4Dof)與上銀六軸(6Dof)使用](Exp2/README.md)
 * [Exp 3 - 辨識分類機器人](Exp3/README.md)
 * [Exp 4 - 二連桿寫字機器人](Exp4/README.md)
-* [Final Project](Final/README.md)
 
 ## Setup
 * [Visual Studio Code](https://code.visualstudio.com/) with extension of [LEGO® MINDSTORMS® EV3 MicroPython](https://marketplace.visualstudio.com/items?itemName=lego-education.ev3-micropython) 
