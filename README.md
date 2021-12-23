@@ -13,6 +13,14 @@ Experiments of NTUME Introduction to Robotics (ME5118)
 * Environment steup : [Link](https://education.lego.com/en-us/product-resources/mindstorms-ev3/teacher-resources/python-for-ev3)
 * More info about EV3 MicroPython : [Link](https://pybricks.com/ev3-micropython/index.html)
 * More info about EV3 Python ev3dev2 : [Link](https://github.com/ev3dev/ev3dev-lang-python)
+
+## Environment
+|Exp#|Environment|
+|1|EV3 MicroPython|
+|2|Jupyter|
+|3|Ev3 MicroPython|
+|4|Ev3 Python3|
+
 ## Team members
 * 陳品存 (CHEN, PIN-TSUN)
 * 吳政彥 (WU, ZHENG-YAN)
