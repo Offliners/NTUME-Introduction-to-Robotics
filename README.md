@@ -12,7 +12,7 @@ Experiments of NTUME Introduction to Robotics (ME5118)
 * [Visual Studio Code](https://code.visualstudio.com/) with extension of [LEGO® MINDSTORMS® EV3 MicroPython](https://marketplace.visualstudio.com/items?itemName=lego-education.ev3-micropython) 
 * Environment steup : [Link](https://education.lego.com/en-us/product-resources/mindstorms-ev3/teacher-resources/python-for-ev3)
 * More info about EV3 MicroPython : [Link](https://pybricks.com/ev3-micropython/index.html)
-
+* More info about EV3 Python ev3dev2 : [Link](https://github.com/ev3dev/ev3dev-lang-python)
 ## Team members
 * 陳品存 (CHEN, PIN-TSUN)
 * 吳政彥 (WU, ZHENG-YAN)
