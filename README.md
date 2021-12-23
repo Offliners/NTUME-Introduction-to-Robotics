@@ -7,6 +7,9 @@ Experiments of NTUME Introduction to Robotics (ME5118)
 * [Exp 3 - 辨識分類機器人](Exp3/README.md)
 * [Exp 4 - 二連桿寫字機器人](Exp4/README.md)
 
+## ev3dev
+ev3dev is a Debian Linux-based operating system that runs on several LEGO® MINDSTORMS compatible platforms including the LEGO® MINDSTORMS EV3 and Raspberry Pi-powered BrickPi. [More](https://www.ev3dev.org/)
+
 ## Setup
 * [Visual Studio Code](https://code.visualstudio.com/) with extension of [LEGO® MINDSTORMS® EV3 MicroPython](https://marketplace.visualstudio.com/items?itemName=lego-education.ev3-micropython) 
 * Environment steup : [Link](https://education.lego.com/en-us/product-resources/mindstorms-ev3/teacher-resources/python-for-ev3)
