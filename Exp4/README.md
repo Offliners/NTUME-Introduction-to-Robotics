@@ -3,8 +3,6 @@
 
 Exp4 Report : [Link](Exp4_report.pdf)
 
-## 程式流程圖
-
 ## DEMO
 ### 日
 
